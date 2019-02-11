@@ -5,7 +5,8 @@ in the data/unmerged folder and ouputs them all into a single file in the data f
 called merged-spells.json.
 
 """
-import os, json
+import os
+import json
 
 my_path = os.path.abspath(os.path.dirname(__file__))
 path = os.path.join(my_path, "data/unmerged/")

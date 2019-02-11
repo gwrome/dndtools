@@ -1,4 +1,5 @@
-import os, dice
+import os
+import dice
 from flask import abort, Flask, jsonify, request
 
 
