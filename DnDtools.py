@@ -1,15 +1,15 @@
-"""Spellbook slash command for slack
+"""5Etools slash commands for slack
 
-This module implements the /spellbook slash command for slack. Includes a mechanism for excluding certain users by id.
+This module implements the /spellbook and /roll slash commands for slack.
 
 Environment variables required:
     * SLACK_VERIFICATION_TOKEN = bot OAUTH token from api.slack.com/apps
     * SLACK_TEAM_ID = Slack team id, which can be found by viewing/searching source on the web client
 
 TO RUN:
-    * SLACK_VERIFICATION_TOKEN=[VERIFICATION TOKEN] SLACK_TEAM_ID=[TEAM_ID] FLASK_APP=spellbook.py flask run
+    * SLACK_VERIFICATION_TOKEN=[VERIFICATION TOKEN] SLACK_TEAM_ID=[TEAM_ID] FLASK_APP=DnDtools.py flask run
     * If running behind a NAT firewall, use ngrok to tunnel
-    * Set slack app slash command URL to point to the ngrok tunnel or server with /spellbook at the end
+    * Set appropiate slack app slash command URLs to point to the ngrok tunnel or server with route at the end
     * See https://renzo.lucioni.xyz/serverless-slash-commands-with-python/ for help/outline of how this was developed
 
 TODO:
@@ -24,10 +24,10 @@ TODO:
 import os
 import json
 import objectpath
+import dice
 from flask import abort, Flask, jsonify, request
 from unidecode import unidecode
 from spell import Spell
-
 
 app = Flask(__name__)
 
@@ -81,3 +81,21 @@ def spellbook():
             response_type='in_channel',
             text="No spell by that name found."
         )
+
+@app.route('/roll', methods=['POST'])
+def roll():
+    if not is_request_valid(request):
+        abort(400)
+    input_text = request.form['text']
+    if not input_text:
+        return jsonify(
+            response_type='in_channel',
+            text="What dice would you like to roll?\n" +
+                 "If you want individual die rolls, try something like _/roll 3d6_.\n" +
+                 "If you just want a total, add a t to the end, like this: _/roll 4d10t_.\n" +
+                 "For more complex syntax, see https://pypi.org/project/dice/"
+        )
+    return jsonify(
+        response_type='in_channel',
+        text=str(dice.roll(input_text))
+    )
