@@ -6,6 +6,10 @@ Environment variables required:
     * SLACK_VERIFICATION_TOKEN = bot OAUTH token from api.slack.com/apps
     * SLACK_TEAM_ID = Slack team id, which can be found by viewing/searching source on the web client
 
+TO RUN:
+    * SLACK_VERIFICATION_TOKEN=[VERIFICATION TOKEN] SLACK_TEAM_ID=[TEAM_ID] FLASK_APP=spellbook.py flask run
+    * If running behind a NAT firewall, use ngrok to tunnel
+    * Set slack app slash command URL to point to the ngrok tunnel or server with /spellbook at the end
 
 TODO:
     * Handle spell names with apostrophes (unicode issues somewhere)
@@ -16,7 +20,9 @@ TODO:
 
 """
 
-import os, json, objectpath
+import os
+import json
+import objectpath
 from flask import abort, Flask, jsonify, request
 from unidecode import unidecode
 from spell import Spell
