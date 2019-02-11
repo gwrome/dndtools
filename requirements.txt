@@ -1,0 +1,11 @@
+Click==7.0
+dice==2.4.0
+docopt==0.6.2
+Flask==1.0.2
+itsdangerous==1.1.0
+Jinja2==2.10
+MarkupSafe==1.1.0
+objectpath==0.6.1
+pyparsing==2.3.1
+Unidecode==1.0.23
+Werkzeug==0.14.1
