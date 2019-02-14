@@ -98,9 +98,13 @@ def roll():
                  "If you just want a total, add a t to the end, like this: _/roll 4d10t_.\n" +
                  "For more complex syntax, see https://pypi.org/project/dice/"
         )
+    try:
+        roll_result = str(dice.roll(input_text))
+    except dice.DiceException:
+        roll_result = "Invalid roll. Try again."
     return jsonify(
         response_type='in_channel',
-        text=str(dice.roll(input_text))
+        text=roll_result
     )
 
 @app.route('/condition', methods=['POST'])
