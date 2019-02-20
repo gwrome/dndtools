@@ -16,7 +16,6 @@ TO RUN:
     * See https://renzo.lucioni.xyz/serverless-slash-commands-with-python/ for help/outline of how this was developed
 
 TODO:
-    * Handle spell names with apostrophes (unicode issues somewhere)
     * Do something about spells with charts (e.g., Confusion). Maybe direct users to the source material?
     * Implement better searching. Right now, it only responds to perfect case insensitive searches. It would be
         a lot better if "firebal" would say something like "I didn't find 'firebal.' Did you mean this?" and print
@@ -26,33 +25,36 @@ TODO:
 
 import os
 import json
-import objectpath
+from string import capwords
 import dice
 from flask import abort, Flask, jsonify, request
-from unidecode import unidecode
 from spell import Spell
+
 
 app = Flask(__name__)
 
-# Load the data files and make a tree that's searchable with objectpath
-my_path = os.path.abspath(os.path.dirname(__file__))
 # If merged-spells.json doesn't exist, it can be generated from 5e.tools source files with merge-json-files.py
-data_path = os.path.join(my_path, "data/merged-spells.json")
+data_path = os.path.join(os.path.dirname(__file__), "merged-spells.json")
 spells = json.load(open(data_path))
-tree_obj = objectpath.Tree(spells)
+
 
 def search_spell(search_str):
-    result = tuple(tree_obj.execute("$.spell[@.name is '{}']".format(search_str.lower().title())))
+    print(search_str)
+    print("é")
+    result = [spell for spell in spells['spell'] if spell['name'] == capwords(search_str)]
     if result:
         return result[0]
+    else:
+        return []
+
 
 def is_request_valid(request):
     is_token_valid = request.form['token'] == os.environ['SLACK_VERIFICATION_TOKEN']
     is_team_id_valid = request.form['team_id'] == os.environ['SLACK_TEAM_ID']
     return is_token_valid and is_team_id_valid
 
-@app.route('/spellbook', methods=['POST'])
 
+@app.route('/spellbook', methods=['POST'])
 def spellbook():
     if not is_request_valid(request):
         abort(400)
@@ -72,8 +74,10 @@ def spellbook():
             text="You have to tell me what spell to look up for you. I'm not a mind flayer."
         )
 
+    # Replace unicode right-hand quotation mark with ASCII '
+    input_text = input_text.replace("’", "'")
     # Search and respond
-    result = search_spell(unidecode(input_text))
+    result = search_spell(input_text)
     if result:
         return jsonify(
             response_type='in_channel',
@@ -84,6 +88,7 @@ def spellbook():
             response_type='in_channel',
             text="No spell by that name found."
         )
+
 
 @app.route('/roll', methods=['POST'])
 def roll():
@@ -106,6 +111,7 @@ def roll():
         response_type='in_channel',
         text=roll_result
     )
+
 
 @app.route('/condition', methods=['POST'])
 def condition():
@@ -150,7 +156,7 @@ def condition():
                             "* The creature has resistance to all damage.\n"
                             "* The creature is immune to poison and disease, although a poison or disease already in "
                             "its system is suspended, not neutralized.",
-        "poisoned":         "A poisoned creature has disadvantage on attach rolls and ability checks.",
+        "poisoned":         "A poisoned creature has disadvantage on attack rolls and ability checks.",
         "prone":            "* A prone creature's only Movement option is to crawl, unless it stands up and thereby "
                             "ends the condition.\n"
                             "* The creature has disadvantage on Attack rolls.\n"
@@ -190,7 +196,7 @@ def condition():
                             "*Exhaustion Effects:*\n"
                             "*1:* Disadvantage on Ability Checks\n"
                             "*2:* Speed halved\n"
-                            "*3:* Disadvantage on Attach rolls and Saving Throws\n"
+                            "*3:* Disadvantage on Attack rolls and Saving Throws\n"
                             "*4:* Hit point maximum halved\n"
                             "*5:* Speed reduced to 0\n"
                             "*6:* Death"
