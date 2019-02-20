@@ -14,5 +14,5 @@ base = {"spell": []}
 for directory, subdirectories, files in os.walk(path):
     for file in files:
         base['spell'] += json.load(open(os.path.join(path, file)))['spell']
-with open(os.path.join(my_path, "data/merged-spells.json"), "w") as outfile:
+with open(os.path.join(my_path, "merged-spells.json"), "w") as outfile:
     json.dump(base, outfile)
