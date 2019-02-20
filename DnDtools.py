@@ -39,8 +39,6 @@ spells = json.load(open(data_path))
 
 
 def search_spell(search_str):
-    print(search_str)
-    print("é")
     result = [spell for spell in spells['spell'] if spell['name'] == capwords(search_str)]
     if result:
         return result[0]
