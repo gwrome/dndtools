@@ -26,13 +26,6 @@ def spellbook():
         abort(401)
     input_text = request.form['text']
 
-    # Deny certain users access
-    if request.form['user_id'] == "U0JCUDM5F":
-        return jsonify(
-            response_type='in_channel',
-            text="Eat shit, {}.".format(request.form['user_name'])
-        )
-
     # Handle calls to /spellbook without any spell name
     if not input_text:
         return jsonify(
