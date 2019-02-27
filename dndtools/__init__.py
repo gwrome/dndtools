@@ -7,15 +7,18 @@ Environment variables required:
     * SLACK_VERIFICATION_TOKEN = bot OAUTH token from api.slack.com/apps
     * SLACK_TEAM_ID = Slack team id, which can be found by viewing/searching source on the web client
 TO RUN:
-    * SLACK_VERIFICATION_TOKEN=[VERIFICATION TOKEN] SLACK_TEAM_ID=[TEAM_ID] FLASK_APP=ddndtools.py flask run
+    * SLACK_VERIFICATION_TOKEN=[VERIFICATION TOKEN] SLACK_TEAM_ID=[TEAM_ID] FLASK_APP=dndtools.py flask run
     * If running behind a NAT firewall, use ngrok to tunnel
-    * Set appropiate slack app slash command URLs to point to the ngrok tunnel or server with route at the end
+    * Set appropriate slack app slash command URLs to point to the ngrok tunnel or server with route at the end
     * See https://renzo.lucioni.xyz/serverless-slash-commands-with-python/ for help/outline of how this was developed
 TODO:
     * Do something about spells with charts (e.g., Confusion). Maybe direct users to the source material?
     * Implement better searching. Right now, it only responds to perfect case insensitive searches. It would be
-        a lot better if "firebal" would say something like "I didn't find 'firebal.' Did you mean this?" and print
-        the entry for fireball.
+      a lot better if "firebal" would say something like "I didn't find 'firebal.' Did you mean this?" and print
+      the entry for fireball.
+    * Migrate to database storage for spells
+    * Create CLI tool to initialize spell db from one or more JSON files
+    * Put SRD spells JSON file in the repo? Would have to add Open Gaming License
 """
 
 import os
