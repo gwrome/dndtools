@@ -10,12 +10,17 @@ TODO:
 
 class Spell:
 
-    def __init__(self, json_dict):
+    def __init__(self, json_dict=None):
         """
         Builds the spell object from a dictionary imported from the 5e.tools JSON source files
 
         :param json_dict: dictionary containing a single spell loaded from JSON source files
         """
+        # When building a Spell from a DB row, we want a plain object we can set manually rather than go through
+        # all the translation logic below
+        if not json_dict:
+            return
+
         # Name of the spell
         self.name = json_dict['name']
 
@@ -55,8 +60,6 @@ class Spell:
         elif json_dict['range'].get('type', None) == 'special':
             self.range = "Special"
 
-
-
         # Spell components - Somatic & Verbal components give boolean values
         # if a material component is required, the value is the component's name
         self.components = []
@@ -79,11 +82,13 @@ class Spell:
         if json_dict['duration'][0]['type'] == 'timed':
             self.duration = str(json_dict['duration'][0]['duration']['amount'])
             self.duration += " {}".format(json_dict['duration'][0]['duration']['type'])
+            if int(json_dict['duration'][0]['duration']['amount']) > 1:
+                self.duration += "s"
             if json_dict['duration'][0].get('concentration', False):
-                self.duration += " (C)"
+                self.duration += " (concentration)"
         else:
             self.duration = json_dict['duration'][0]['type']
-        self.duration = self.duration.title()
+        self.duration = self.duration.capitalize()
 
         # Ritual tag
         self.ritual = False
@@ -122,7 +127,7 @@ class Spell:
         output = "*{}*\n".format(self.name)
 
         # Level/School/Ritual
-        if self.level is not "0":
+        if self.level is not 0:
             output += "_Level {} {}".format(self.level, self.school)
         else:
             output += "_{} cantrip".format(self.school)
@@ -162,3 +167,20 @@ class Spell:
                 self.duration,
                 int(self.ritual),
                 self.description)
+
+
+    @classmethod
+    def from_db(cls, db_result):
+        spell = cls()
+        spell.level = db_result['spell_level']
+        spell.name = db_result['name']
+        spell.school = db_result['school']
+        spell.source = db_result['source']
+        spell.cast_time = db_result['cast_time']
+        spell.range = db_result['range']
+        spell.components = db_result['components']
+        spell.duration = db_result['duration']
+        spell.ritual = db_result['ritual']
+        spell.description = db_result['description']
+
+        return spell

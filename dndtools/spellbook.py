@@ -5,19 +5,17 @@ import os
 from flask import abort, Blueprint, current_app, jsonify, request
 from spell import Spell
 from dndtools import is_request_valid
+from dndtools.db import get_db
 
 bp = Blueprint('spellbook', __name__)
 
 
 def search_spell(search_str):
-    # If merged-spells.json doesn't exist, it can be generated from 5e.tools source files with merge-json-files.py
-    with current_app.open_instance_resource('merged-spells.json') as f:
-        spells = json.load(f)
-        result = [spell for spell in spells['spell'] if spell['name'] == capwords(search_str)]
-        if result:
-            return result[0]
-        else:
-            return []
+    db = get_db()
+    result = db.execute(
+        'SELECT * FROM spell WHERE LOWER(name) = LOWER(?)', (search_str,)
+    ).fetchone()
+    return result
 
 
 @bp.route('/spellbook', methods=['POST'])
@@ -40,7 +38,7 @@ def spellbook():
     if result:
         return jsonify(
             response_type='in_channel',
-            text=Spell(result).format_slack_message()
+            text=Spell.from_db(result).format_slack_message()
         )
     else:
         return jsonify(
