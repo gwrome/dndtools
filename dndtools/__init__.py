@@ -16,8 +16,7 @@ TODO:
     * Implement better searching. Right now, it only responds to perfect case insensitive searches. It would be
       a lot better if "firebal" would say something like "I didn't find 'firebal.' Did you mean this?" and print
       the entry for fireball.
-    * Migrate to database storage for spells
-    * Create CLI tool to initialize spell db from one or more JSON files
+    * Update db init script to take file argument so users can use different JSON files as desired
     * Put SRD spells JSON file in the repo? Would have to add Open Gaming License
 """
 
@@ -32,6 +31,7 @@ def create_app(test_config=None):
     app.config.from_mapping(
         # a default secret that should be overridden by instance config
         SECRET_KEY='dev',
+        DATABASE=os.path.join(app.instance_path, 'spells.sql')
     )
 
     if test_config is None:
@@ -48,6 +48,9 @@ def create_app(test_config=None):
         os.makedirs(app.instance_path)
     except OSError:
         pass
+
+    from . import db
+    db.init_app(app)
 
     from . import condition
     app.register_blueprint(condition.bp)

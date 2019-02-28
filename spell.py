@@ -10,12 +10,17 @@ TODO:
 
 class Spell:
 
-    def __init__(self, json_dict):
+    def __init__(self, json_dict=None):
         """
         Builds the spell object from a dictionary imported from the 5e.tools JSON source files
 
-        :param json_dict: dictionary containing a single spell loaded from 5e.tools JSON source files
+        :param json_dict: dictionary containing a single spell loaded from JSON source files
         """
+        # When building a Spell from a DB row, we want a plain object we can set manually rather than go through
+        # all the translation logic below
+        if not json_dict:
+            return
+
         # Name of the spell
         self.name = json_dict['name']
 
@@ -23,14 +28,16 @@ class Spell:
         self.level = str(json_dict['level'])
 
         # School of Magic
-        schools={'A':"Abjuration",
-                 "C": "Conjuration",
-                 "D":"Divination",
-                 "E":"Enchantment",
-                 "V":"Evocation",
-                 "I":"Illusion",
-                 "N":"Necromancy",
-                 "T":"Transmutation"}
+        schools = {"A":"Abjuration",
+                   "C": "Conjuration",
+                   "D":"Divination",
+                   "E":"Enchantment",
+                   "V":"Evocation",
+                   "I":"Illusion",
+                   "N":"Necromancy",
+                   "P":"Psionic",
+                   "T":"Transmutation",}
+
         self.school = schools[json_dict['school']]
 
         # Source of the spell
@@ -44,32 +51,44 @@ class Spell:
             self.cast_time += " " + json_dict['time'][0]['condition']
 
         # Range is encoded differently depending on whether it's touch/self or ranged
-        if "amount" in json_dict['range']['distance']:
-            self.range = str(json_dict['range']['distance']['amount']) + " " + \
-                         json_dict['range']['distance']['type']
-        elif "type" in json_dict['range']['distance']:
-            self.range = json_dict['range']['distance']['type'].title()
+        if json_dict['range'].get('distance', None):
+            if "amount" in json_dict['range']['distance']:
+                self.range = str(json_dict['range']['distance']['amount']) + " " + \
+                             json_dict['range']['distance']['type']
+            elif "type" in json_dict['range']['distance']:
+                self.range = json_dict['range']['distance']['type'].title()
+        elif json_dict['range'].get('type', None) == 'special':
+            self.range = "Special"
 
         # Spell components - Somatic & Verbal components give boolean values
         # if a material component is required, the value is the component's name
         self.components = []
-        if "v" in json_dict['components'].keys():
-            self.components.append("V")
-        if "s" in json_dict['components'].keys():
-            self.components.append("S")
-        if "m" in json_dict['components'].keys():
-            if isinstance(json_dict['components']['m'], dict):
-                self.components.append("M ({})".format(json_dict['components']['m'].get('text', json_dict['components']['m'])))
-            else:
-                self.components.append("M ({})".format(json_dict['components']['m']))
-        self.components = ", ".join(self.components)
+        if json_dict.get('components', None):
+            if "v" in json_dict['components'].keys():
+                self.components.append("V")
+            if "s" in json_dict['components'].keys():
+                self.components.append("S")
+            if "m" in json_dict['components'].keys():
+                if isinstance(json_dict['components']['m'], dict):
+                    self.components.append("M ({})".format(json_dict['components']['m'].get('text', json_dict['components']['m'])))
+                else:
+                    self.components.append("M ({})".format(json_dict['components']['m']))
+            self.components = ", ".join(self.components)
+        else:
+            self.components = "None"
 
         # Spell duration
         self.duration = ""
-        if "amount" in json_dict['duration'][0].keys():
-            self.duration = str(json_dict['duration'][0]['amount'])
-        self.duration += " {}".format(json_dict['duration'][0]['type'])
-        self.duration = self.duration.title()
+        if json_dict['duration'][0]['type'] == 'timed':
+            self.duration = str(json_dict['duration'][0]['duration']['amount'])
+            self.duration += " {}".format(json_dict['duration'][0]['duration']['type'])
+            if int(json_dict['duration'][0]['duration']['amount']) > 1:
+                self.duration += "s"
+            if json_dict['duration'][0].get('concentration', False):
+                self.duration += " (concentration)"
+        else:
+            self.duration = json_dict['duration'][0]['type']
+        self.duration = self.duration.capitalize()
 
         # Ritual tag
         self.ritual = False
@@ -108,7 +127,7 @@ class Spell:
         output = "*{}*\n".format(self.name)
 
         # Level/School/Ritual
-        if self.level is not "0":
+        if self.level is not 0:
             output += "_Level {} {}".format(self.level, self.school)
         else:
             output += "_{} cantrip".format(self.school)
@@ -135,3 +154,33 @@ class Spell:
         output += "_" + self.source + "_"
 
         return output
+
+
+    def export_for_db(self, json_dict):
+        return (self.name,
+                int(self.level),
+                self.school,
+                self.source,
+                self.cast_time,
+                self.range,
+                self.components,
+                self.duration,
+                int(self.ritual),
+                self.description)
+
+
+    @classmethod
+    def from_db(cls, db_result):
+        spell = cls()
+        spell.level = db_result['spell_level']
+        spell.name = db_result['name']
+        spell.school = db_result['school']
+        spell.source = db_result['source']
+        spell.cast_time = db_result['cast_time']
+        spell.range = db_result['range']
+        spell.components = db_result['components']
+        spell.duration = db_result['duration']
+        spell.ritual = db_result['ritual']
+        spell.description = db_result['description']
+
+        return spell
