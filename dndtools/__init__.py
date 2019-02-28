@@ -29,8 +29,6 @@ def create_app(test_config=None):
     """Create and configure an instance of the Flask dndtools application."""
     app = Flask(__name__, instance_relative_config=True)
     app.config.from_mapping(
-        # a default secret that should be overridden by instance config
-        SECRET_KEY='dev',
         DATABASE=os.path.join(app.instance_path, 'spells.sql')
     )
 
@@ -39,6 +37,7 @@ def create_app(test_config=None):
         app.config.from_pyfile('config.py', silent=True)
         app.config['SLACK_VERIFICATION_TOKEN'] = os.environ.get('SLACK_VERIFICATION_TOKEN', None)
         app.config['SLACK_TEAM_ID'] = os.environ.get('SLACK_TEAM_ID', None)
+        app.config['SECRET_KEY'] = os.environ.get('FLASK_SECRET_KEY', None)
     else:
         # load the test config if passed in
         app.config.update(test_config)

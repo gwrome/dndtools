@@ -12,6 +12,7 @@ def app():
         'TESTING': True,
         'SLACK_VERIFICATION_TOKEN': 'test-token',
         'SLACK_TEAM_ID': 'test-team-id',
+        'SECRET_KEY': 'flask-secret-key',
     })
 
     yield app
