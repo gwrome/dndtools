@@ -16,8 +16,7 @@ TODO:
     * Implement better searching. Right now, it only responds to perfect case insensitive searches. It would be
       a lot better if "firebal" would say something like "I didn't find 'firebal.' Did you mean this?" and print
       the entry for fireball.
-    * Migrate to database storage for spells
-    * Create CLI tool to initialize spell db from one or more JSON files
+    * Update db init script to take file argument so users can use different JSON files as desired
     * Put SRD spells JSON file in the repo? Would have to add Open Gaming License
 """
 
