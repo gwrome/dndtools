@@ -48,3 +48,38 @@ def test_bad_input(client):
                                                   user_id='asdf')).get_json()['text']
 
 
+def test_durations(client):
+    hut_response = client.post('/spellbook',
+                               data=dict(text="Leomund's Tiny Hut",
+                                         team_id='test-team-id',
+                                         token='test-token',
+                                         user_id='asdf')).get_json()['text']
+    assert '*Duration:* 8 hours' in hut_response
+
+    fireball_response = client.post('/spellbook',
+                                     data=dict(text="Fireball",
+                                               team_id='test-team-id',
+                                               token='test-token',
+                                               user_id='asdf')).get_json()['text']
+    assert '*Duration:* Instant' in fireball_response
+
+    cloud_response = client.post('/spellbook',
+                                 data=dict(text="Incendiary Cloud",
+                                           team_id='test-team-id',
+                                           token='test-token',
+                                           user_id='asdf')).get_json()['text']
+    assert '*Duration:* 1 minute (concentration)' in cloud_response
+
+    imprisonment_response = client.post('/spellbook',
+                                        data=dict(text="Imprisonment",
+                                                  team_id='test-team-id',
+                                                  token='test-token',
+                                                  user_id='asdf')).get_json()['text']
+    assert '*Duration:* Permanent' in imprisonment_response
+
+def test_cantrip(client):
+    assert "cantrip" in client.post('/spellbook',
+                                    data=dict(text="Shocking Grasp",
+                          team_id='test-team-id',
+                          token='test-token',
+                          user_id='asdf')).get_json()['text']
