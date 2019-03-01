@@ -13,9 +13,6 @@ TO RUN:
     * See https://renzo.lucioni.xyz/serverless-slash-commands-with-python/ for help/outline of how this was developed
 TODO:
     * Do something about spells with charts (e.g., Confusion). Maybe direct users to the source material?
-    * Implement better searching. Right now, it only responds to perfect case insensitive searches. It would be
-      a lot better if "firebal" would say something like "I didn't find 'firebal.' Did you mean this?" and print
-      the entry for fireball.
     * Update db init script to take file argument so users can use different JSON files as desired
     * Put SRD spells JSON file in the repo? Would have to add Open Gaming License
 """
@@ -23,14 +20,31 @@ TODO:
 import os
 
 from flask import current_app, Flask
+from flask_dynamo import Dynamo
 
 
 def create_app(test_config=None):
     """Create and configure an instance of the Flask dndtools application."""
     app = Flask(__name__, instance_relative_config=True)
-    app.config.from_mapping(
-        DATABASE=os.path.join(app.instance_path, 'spells.sql')
-    )
+
+    # for sqlite backend
+    # app.config.from_mapping(
+    #     DATABASE=os.path.join(app.instance_path, 'spells.sql')
+    # )
+
+    if os.environ.get('FLASK_ENV', None) == 'development':
+        app.config['DYNAMO_ENABLE_LOCAL'] = True
+        app.config['DYNAMO_LOCAL_HOST'] = 'localhost'
+        app.config['DYNAMO_LOCAL_PORT'] = 8000
+
+    app.config['DYNAMO_TABLES'] = [
+        {
+            'TableName': 'spells',
+            'KeySchema': [dict(AttributeName='name', KeyType='HASH')],
+            'AttributeDefinitions': [dict(AttributeName='name', AttributeType='S')],
+            'ProvisionedThroughput': dict(ReadCapacityUnits=5, WriteCapacityUnits=5)
+        }
+    ]
 
     if test_config is None:
         # load the instance config, if it exists, when not testing
@@ -59,6 +73,9 @@ def create_app(test_config=None):
 
     from . import spellbook
     app.register_blueprint(spellbook.bp)
+
+    dynamo = Dynamo()
+    dynamo.init_app(app)
 
     return app
 
