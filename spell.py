@@ -127,7 +127,7 @@ class Spell:
         output = "*{}*\n".format(self.name)
 
         # Level/School/Ritual
-        if self.level is not 0:
+        if int(self.level) != 0:
             output += "_Level {} {}".format(self.level, self.school)
         else:
             output += "_{} cantrip".format(self.school)
@@ -156,7 +156,7 @@ class Spell:
         return output
 
 
-    def export_for_db(self, json_dict):
+    def export_for_sqlite(self):
         return (self.name,
                 int(self.level),
                 self.school,
@@ -169,8 +169,24 @@ class Spell:
                 self.description)
 
 
+    def export_for_dynamodb(self):
+        return {
+            'name': self.name,
+            'level': int(self.level),
+            'school': self.school,
+            'source': self.source,
+            'cast_time': self.cast_time,
+            'range': self.range,
+            'components': self.components,
+            'duration': self.duration,
+            'ritual': bool(self.ritual),
+            'description': self.description,
+            'search_name': self.name.lower(),
+        }
+
+
     @classmethod
-    def from_db(cls, db_result):
+    def from_sqlite(cls, db_result):
         spell = cls()
         spell.level = db_result['spell_level']
         spell.name = db_result['name']
@@ -183,4 +199,19 @@ class Spell:
         spell.ritual = db_result['ritual']
         spell.description = db_result['description']
 
+        return spell
+
+    @classmethod
+    def from_dynamodb(cls, db_result):
+        spell = cls()
+        spell.level = db_result['level']
+        spell.name = db_result['name']
+        spell.school = db_result['school']
+        spell.source = db_result['source']
+        spell.cast_time = db_result['cast_time']
+        spell.range = db_result['range']
+        spell.components = db_result['components']
+        spell.duration = db_result['duration']
+        spell.ritual = db_result['ritual']
+        spell.description = db_result['description']
         return spell

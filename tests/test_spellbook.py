@@ -80,6 +80,6 @@ def test_durations(client):
 def test_cantrip(client):
     assert "cantrip" in client.post('/spellbook',
                                     data=dict(text="Shocking Grasp",
-                          team_id='test-team-id',
-                          token='test-token',
-                          user_id='asdf')).get_json()['text']
+                                              team_id='test-team-id',
+                                              token='test-token',
+                                              user_id='asdf')).get_json()['text']

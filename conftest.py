@@ -13,6 +13,9 @@ def app():
         'SLACK_VERIFICATION_TOKEN': 'test-token',
         'SLACK_TEAM_ID': 'test-team-id',
         'SECRET_KEY': 'flask-secret-key',
+        'DYNAMO_ENABLE_LOCAL': True,
+        'DYNAMO_LOCAL_HOST': 'localhost',
+        'DYNAMO_LOCAL_PORT': 8000,
     })
 
     yield app
