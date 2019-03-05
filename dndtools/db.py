@@ -30,9 +30,9 @@ def close_db(e=None):
 def init_db():
     with current_app.app_context():
         db = get_db()
-        # if 'spells' in db.tables.keys():
-        #     db.tables['spells'].delete()
-        db.create_all()
+        db.destroy_all(wait=True)
+        db.create_all(wait=True)
+
     # For sqlite implementations
     #
     # db = get_db()
@@ -47,7 +47,6 @@ def init_db_command():
     """Clear the existing data and create new tables."""
     init_db()
     click.echo('Initialized the empty database.')
-    time.sleep(30)  # wait for the database initialize
     # for sqlite backend
     # db = get_db()
     db = current_app.extensions['dynamo']
