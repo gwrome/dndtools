@@ -1,18 +1,18 @@
 """D&D 5e spell
 
 This module implements a python object representing the attributes of a D&D 5e spell. It takes the JSON information
-from the 5e.tools website and provides a method to output the spell information to slack message format.
+from a local file and creates a Spell instance.
 
-TODO:
-    * Helper methods to strip out or implement special commands from the source data, e.g., {@ dice 6d6} in Fireball
+The json file can be in a basic format or in the formate used by the 5e.tools website.
 """
 
+import re
 
 class Spell:
 
     def __init__(self, json_dict=None):
         """
-        Builds the spell object from a dictionary imported from the 5e.tools JSON source files
+        Builds the spell object from a dictionary imported from a JSON source file
 
         :param json_dict: dictionary containing a single spell loaded from JSON source files
         """
@@ -118,6 +118,23 @@ class Spell:
             self.description += "_*At Higher Levels.*_\n\t" + \
                        "".join(json_dict['entriesHigherLevel'][0]['entries']) + "\n"
 
+        # Strip all the {@xyz} formatting language from the 5Etools files and replace with plain text
+        clean_description = self.description
+
+        replacements = [
+            re.compile('(\{@dice ([+\-\d\w\s]*)\})'),                   # {@dice 1d4 +1} => 1d4 + 1
+            re.compile('(\{@condition (\w+)\})'),                       # {@condition blinded} => blinded
+            re.compile('(\{@scaledice [+\-\|\d\w\s]*(\d+d\d+)\})'),     # {@scaledice 3d12|3-9|1d12} => 1d12
+            re.compile('(\{@creature ([\-\w\s]*)\})'),                  # {@creature dire wolf} => dire wolf
+            re.compile('(\{@filter ([/\d\w\s]+)\|.+?\})'),              # {@filter challenge rating 6 or lower...}
+        ]
+        for r in replacements:
+            m = r.findall(clean_description)
+            if m:
+                for replacement in m:
+                    clean_description = clean_description.replace(replacement[0], replacement[1])
+        self.description = clean_description.strip()
+
     def format_slack_message(self):
         """Formats the spell's info for sending as a slack message
         :return:
@@ -148,7 +165,7 @@ class Spell:
         output += "*Duration:* {}\n".format(self.duration)
 
         # Description
-        output += self.description + "\n"
+        output += "\n\t" + self.description + "\n"
 
         # Source
         output += "_" + self.source + "_"
