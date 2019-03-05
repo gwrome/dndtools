@@ -13,8 +13,6 @@ TO RUN:
     * See https://renzo.lucioni.xyz/serverless-slash-commands-with-python/ for help/outline of how this was developed
 TODO:
     * Do something about spells with charts (e.g., Confusion). Maybe direct users to the source material?
-    * Update db init script to take file argument so users can use different JSON files as desired
-    * Put SRD spells JSON file in the repo? Would have to add Open Gaming License
     * Give the option to use SQL instead of DynamoDB
 """
 

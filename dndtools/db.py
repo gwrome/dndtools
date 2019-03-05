@@ -42,18 +42,24 @@ def init_db():
 
 
 @click.command('init-db')
+@click.option('--infile', default='srd-spells.json', help='JSON input file relative to dndtools directory')
+@click.option('--tools', is_flag=True)
 @with_appcontext
-def init_db_command():
+def init_db_command(infile, tools):
     """Clear the existing data and create new tables."""
     init_db()
     click.echo('Initialized the empty database.')
     # for sqlite backend
     # db = get_db()
     db = current_app.extensions['dynamo']
-    with current_app.open_resource('spells.json') as f:
+    with current_app.open_resource(infile) as f:
         spells = json.load(f)
-        for s in spells['spell']:
-            db.tables['spells'].put_item(Item=Spell(s).export_for_dynamodb())
+        if tools:
+            for s in spells['spell']:
+                db.tables['spells'].put_item(Item=Spell(s, from_tools=True).export_for_dynamodb())
+        else:
+            for s in spells:
+                db.tables['spells'].put_item(Item=Spell(s).export_for_dynamodb())
         # for sqlite backend
         # db.execute(
         #     'INSERT INTO spell (name, spell_level, school, source, cast_time, range, components, duration, ritual, '

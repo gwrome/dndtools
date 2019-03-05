@@ -23,11 +23,11 @@ def test_titlecase_spell(client):
 
 
 def test_apostrophe_spell(client):
-    assert "Tiny Hut" in client.post('/spellbook',
-                                     data=dict(text="Leomund's Tiny Hut",
-                                               team_id='test-team-id',
-                                               token='test-token',
-                                               user_id='asdf')).get_json()['text']
+    assert "Crusader's Mantle" in client.post('/spellbook',
+                                              data=dict(text="Crusader's Mantle",
+                                                        team_id='test-team-id',
+                                                        token='test-token',
+                                                        user_id='asdf')).get_json()['text']
 
 
 def test_blank(client):
@@ -49,12 +49,12 @@ def test_bad_input(client):
 
 
 def test_durations(client):
-    hut_response = client.post('/spellbook',
-                               data=dict(text="Leomund's Tiny Hut",
-                                         team_id='test-team-id',
-                                         token='test-token',
-                                         user_id='asdf')).get_json()['text']
-    assert '*Duration:* 8 hours' in hut_response
+    nondetect_response = client.post('/spellbook',
+                                     data=dict(text="Nondetection",
+                                               team_id='test-team-id',
+                                               token='test-token',
+                                               user_id='asdf')).get_json()['text']
+    assert '*Duration:* 8 hours' in nondetect_response
 
     fireball_response = client.post('/spellbook',
                                      data=dict(text="Fireball",
@@ -68,14 +68,14 @@ def test_durations(client):
                                            team_id='test-team-id',
                                            token='test-token',
                                            user_id='asdf')).get_json()['text']
-    assert '*Duration:* 1 minute (concentration)' in cloud_response
+    assert '*Duration:* 1 minute (concentration)' in cloud_response or '*Duration:* Concentration' in cloud_response
 
     imprisonment_response = client.post('/spellbook',
                                         data=dict(text="Imprisonment",
                                                   team_id='test-team-id',
                                                   token='test-token',
                                                   user_id='asdf')).get_json()['text']
-    assert '*Duration:* Permanent' in imprisonment_response
+    assert '*Duration:* Permanent' in imprisonment_response or '*Duration:* Until dispelled' in imprisonment_response
 
 def test_cantrip(client):
     assert "cantrip" in client.post('/spellbook',
