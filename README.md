@@ -40,4 +40,4 @@ Thanks to Renzo Luciono's great [tutorial on serverless slash commands](https://
 
 And thanks to GitHub user vorpalhex for packaging up the SRD's spells in a [handy JSON file](https://github.com/vorpalhex/srd_spells) that I've included with this repo.
 ## Open Gaming License Content
-The contents of [srd-spells.json](dndtools/srd-spells.json) and the condition information in [condition.py](dndtools/condition.py) are used under the OLG. I have also included a copy of the relevant Open Gaming License in the repo in the ogl.html file. No other content in this repository is subject to the OGL.
+The contents of [srd-spells.json](dndtools/srd-spells.json) and the condition information in [condition.py](dndtools/condition.py) are used under the OGL. I have also included a copy of the relevant Open Gaming License in the repo in the ogl.html file. No other content in this repository is subject to the OGL.
