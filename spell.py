@@ -1,26 +1,43 @@
-"""D&D 5e spell
-
-This module implements a python object representing the attributes of a D&D 5e spell. It takes the JSON information
-from a local file and creates a Spell instance.
-
-The json file can be in a basic format or in the formate used by the 5e.tools website.
-"""
-
+"""A module for representing and working with D&D 5E spells"""
 import re
 
+
 class Spell:
+    """D&D 5E Spell
+
+    Creates a Spell instance, usually from data provided by a JSON file or database. Can parse the data differently
+    depending on its source.
+
+    Attributes:
+    name: The spell's name
+    level (int): The spell's level
+    school: The school of magic the spell belongs to, e.g., "Divination"
+    cast_time: The spell's casting time, e.g., "1 Action"
+    range: The spell's range, e.g., "Touch" or "150 feet"
+    components: The spell's required components and materials, e.g., "V, S, M (a tiny ball of bat guano and sulfur)"
+    duration: The spell's duration and whether it requires Concentration, e.g., "Instantaneous" or "8 hours"
+    description: The spell's effects
+    source: The source material containing the spell, e.g. "PHB p. 236"
+    ritual (bool): Whether the spell can be cast as a ritual
+
+    export_for_dynamodb()
+        Returns a dict suitable for writing to a DynamoDB database
+    """
 
     def __init__(self, json_dict=None, from_tools=False):
-        """
-        Builds the spell object from a dictionary imported from a JSON source file
+        """Builds a spell object.
 
-        :param json_dict: dictionary containing a single spell loaded from JSON source files
+        Args:
+            json_dict: a dict containing spell attributes (default: None)
+            from_tools: a boolean flag set to True if the json_dict contains data formatted
+                        like 5e.tools's JSON files (default: False)
         """
         # When building a Spell from a DB row, we want a plain object we can set manually rather than go through
-        # all the translation logic below
+        # all the parsing logic below because the data is already parsed
         if not json_dict:
             return
 
+        # TODO: All this parsing stuff should be broken up into manageable chunks
         if from_tools:
             # Name of the spell
             self.name = json_dict['name']
@@ -153,9 +170,10 @@ class Spell:
             self.source = None
 
     def format_slack_message(self):
-        """Formats the spell's info for sending as a slack message
-        :return:
-            string: Contains the spell's info formatted for sending as slack message
+        """Prepares the spell for sending as a Slack message
+
+        Returns:
+            A str containing the spell's attributes formatted for sending as Slack message
         """
         # Name
         output = "*{}*\n".format(self.name)
@@ -192,6 +210,11 @@ class Spell:
 
 
     def export_for_sqlite(self):
+        """Prepares a spell for saving in a sqlite database
+
+        Returns:
+             A tuple of the spell's attributes in the order required by the SQL schema
+        """
         return (self.name,
                 int(self.level),
                 self.school,
@@ -205,6 +228,11 @@ class Spell:
 
 
     def export_for_dynamodb(self):
+        """Prepares a spell for saving in a DynamoDB database
+
+        Returns:
+            A dict containing the spell's attributes plus its all-lowercase name for searching
+        """
         return {
             'name': self.name,
             'level': int(self.level),
@@ -216,12 +244,17 @@ class Spell:
             'duration': self.duration,
             'ritual': bool(self.ritual),
             'description': self.description,
-            'search_name': self.name.lower(),
+            'search_name': self.name.lower(),  # needed for case-insensitive searching over the table
         }
 
 
     @classmethod
     def from_sqlite(cls, db_result):
+        """Parses data from a sqlite database, creates a Spell object using that data, and returns it
+
+        Returns:
+            A spell
+        """
         spell = cls()
         spell.level = db_result['spell_level']
         spell.name = db_result['name']
@@ -238,6 +271,11 @@ class Spell:
 
     @classmethod
     def from_dynamodb(cls, db_result):
+        """Parses data from a DynamoDB database, creates a Spell object using that data, and returns it
+
+        Returns:
+            A spell
+        """
         spell = cls()
         spell.level = db_result['level']
         spell.name = db_result['name']
