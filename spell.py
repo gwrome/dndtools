@@ -46,15 +46,15 @@ class Spell:
             self.level = str(json_dict['level'])
 
             # School of Magic
-            schools = {"A":"Abjuration",
+            schools = {"A": "Abjuration",
                        "C": "Conjuration",
-                       "D":"Divination",
-                       "E":"Enchantment",
-                       "V":"Evocation",
-                       "I":"Illusion",
-                       "N":"Necromancy",
-                       "P":"Psionic",
-                       "T":"Transmutation",}
+                       "D": "Divination",
+                       "E": "Enchantment",
+                       "V": "Evocation",
+                       "I": "Illusion",
+                       "N": "Necromancy",
+                       "P": "Psionic",
+                       "T": "Transmutation", }
 
             self.school = schools[json_dict['school']]
 
@@ -88,7 +88,8 @@ class Spell:
                     self.components.append("S")
                 if "m" in json_dict['components'].keys():
                     if isinstance(json_dict['components']['m'], dict):
-                        self.components.append("M ({})".format(json_dict['components']['m'].get('text', json_dict['components']['m'])))
+                        self.components.append(
+                            "M ({})".format(json_dict['components']['m'].get('text', json_dict['components']['m'])))
                     else:
                         self.components.append("M ({})".format(json_dict['components']['m']))
                 self.components = ", ".join(self.components)
@@ -134,17 +135,17 @@ class Spell:
             # Handles pretty common "at higher levels" entries, which is separately encoded
             if 'entriesHigherLevel' in json_dict.keys():
                 self.description += "_*At Higher Levels.*_\n\t" + \
-                           "".join(json_dict['entriesHigherLevel'][0]['entries']) + "\n"
+                                    "".join(json_dict['entriesHigherLevel'][0]['entries']) + "\n"
 
             # Strip all the {@xyz} formatting language from the 5Etools files and replace with plain text
             clean_description = self.description
 
             replacements = [
-                re.compile('(\{@dice ([+\-\d\w\s]*)\})'),                   # {@dice 1d4 +1} => 1d4 + 1
-                re.compile('(\{@condition (\w+)\})'),                       # {@condition blinded} => blinded
-                re.compile('(\{@scaledice [+\-\|\d\w\s]*(\d+d\d+)\})'),     # {@scaledice 3d12|3-9|1d12} => 1d12
-                re.compile('(\{@creature ([\-\w\s]*)\})'),                  # {@creature dire wolf} => dire wolf
-                re.compile('(\{@filter ([/\d\w\s]+)\|.+?\})'),              # {@filter challenge rating 6 or lower...}
+                re.compile('(\{@dice ([+\-\d\w\s]*)\})'),  # {@dice 1d4 +1} => 1d4 + 1
+                re.compile('(\{@condition (\w+)\})'),  # {@condition blinded} => blinded
+                re.compile('(\{@scaledice [+\-\|\d\w\s]*(\d+d\d+)\})'),  # {@scaledice 3d12|3-9|1d12} => 1d12
+                re.compile('(\{@creature ([\-\w\s]*)\})'),  # {@creature dire wolf} => dire wolf
+                re.compile('(\{@filter ([/\d\w\s]+)\|.+?\})'),  # {@filter challenge rating 6 or lower...}
             ]
             for r in replacements:
                 m = r.findall(clean_description)
@@ -208,7 +209,6 @@ class Spell:
 
         return output
 
-
     def export_for_sqlite(self):
         """Prepares a spell for saving in a sqlite database
 
@@ -225,7 +225,6 @@ class Spell:
                 self.duration,
                 int(self.ritual),
                 self.description)
-
 
     def export_for_dynamodb(self):
         """Prepares a spell for saving in a DynamoDB database
@@ -246,7 +245,6 @@ class Spell:
             'description': self.description,
             'search_name': self.name.lower(),  # needed for case-insensitive searching over the table
         }
-
 
     @classmethod
     def from_sqlite(cls, db_result):

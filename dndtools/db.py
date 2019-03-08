@@ -20,6 +20,7 @@ def get_db():
     # return g.db
     return current_app.extensions['dynamo']
 
+
 def close_db(e=None):
     db = g.pop('db', None)
 

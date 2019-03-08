@@ -18,7 +18,8 @@ def search_spell(search_str):
     perfect_match = db.tables['spells'].scan(FilterExpression=Attr('search_name').eq(search_str.lower()))['Items']
     if perfect_match:
         return perfect_match[0]
-    contains_match = db.tables['spells'].scan(FilterExpression=Attr('search_name').contains(search_str.lower()))['Items']
+    contains_match = db.tables['spells'].scan(FilterExpression=Attr('search_name').contains(search_str.lower()))[
+        'Items']
     return next(iter(contains_match), None)
 
 

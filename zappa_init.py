@@ -4,4 +4,5 @@
 " For now, in zappa_settings.json, point "app_function" to "zappa_init.app", which then calls the app factory
 """
 from dndtools import create_app
+
 app = create_app()
