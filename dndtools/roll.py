@@ -1,3 +1,5 @@
+"""Flask blueprint for /roll command, which rolls dice and sends the results"""
+
 import dice
 from dndtools import is_request_valid
 from flask import abort, Blueprint, jsonify, request
@@ -7,6 +9,14 @@ bp = Blueprint('roll', __name__)
 
 @bp.route('/roll', methods=['POST'])
 def roll():
+    """Rolls dice and reports the results.
+
+    Raises:
+        DiceException: if the input is invalid
+
+    Returns:
+        json dict with the roll results, a help message, or an error message
+    """
     if not is_request_valid(request):
         abort(401)
     input_text = request.form['text']

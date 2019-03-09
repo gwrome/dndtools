@@ -29,4 +29,5 @@ def client(app):
 
 @pytest.fixture
 def runner(app):
+    """A test command-line runner for the app."""
     return app.test_cli_runner()

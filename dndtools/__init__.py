@@ -1,16 +1,14 @@
-"""5Etools slash commands for slack
-This module implements several slash commands for D&D groups using Slack:
+"""A Flask app to support Slack slash commands for D&D 5E players
+
+This app implements several slash commands:
     * /condition - a reference for conditions
     * /roll - a dice roller
     * /spellbook - a reference for spell text
+
 Environment variables required:
     * SLACK_VERIFICATION_TOKEN = bot OAUTH token from api.slack.com/apps
     * SLACK_TEAM_ID = Slack team id, which can be found by viewing/searching source on the web client
-TO RUN:
-    * SLACK_VERIFICATION_TOKEN=[VERIFICATION TOKEN] SLACK_TEAM_ID=[TEAM_ID] FLASK_APP=dndtools.py flask run
-    * If running behind a NAT firewall, use ngrok to tunnel
-    * Set appropriate slack app slash command URLs to point to the ngrok tunnel or server with route at the end
-    * See https://renzo.lucioni.xyz/serverless-slash-commands-with-python/ for help/outline of how this was developed
+
 TODO:
     * Do something about spells with charts (e.g., Confusion). Maybe direct users to the source material?
     * Give the option to use SQL instead of DynamoDB
@@ -23,7 +21,11 @@ from flask_dynamo import Dynamo
 
 
 def create_app(test_config=None):
-    """Create and configure an instance of the Flask dndtools application."""
+    """Create and configure an instance of the Flask dndtools application.
+
+    Args:
+        test_config: dict containing pytest configuration settings
+    """
     app = Flask(__name__, instance_relative_config=True)
 
     # for sqlite backend
@@ -80,6 +82,14 @@ def create_app(test_config=None):
 
 
 def is_request_valid(request):
+    """Verifies that a request contains the correct Slack security token and team ID
+
+    Args:
+        request: dict containing the HTTP POST request sent to the app
+
+    Returns:
+        True if the request is valid, False otherwise
+    """
     if not current_app.config['SLACK_VERIFICATION_TOKEN'] or not current_app.config['SLACK_TEAM_ID']:
         return False
     is_token_valid = request.form['token'] == current_app.config['SLACK_VERIFICATION_TOKEN']

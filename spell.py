@@ -19,9 +19,6 @@ class Spell:
     description: The spell's effects
     source: The source material containing the spell, e.g. "PHB p. 236"
     ritual (bool): Whether the spell can be cast as a ritual
-
-    export_for_dynamodb()
-        Returns a dict suitable for writing to a DynamoDB database
     """
 
     def __init__(self, json_dict=None, from_tools=False):

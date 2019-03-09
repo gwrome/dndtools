@@ -1,3 +1,5 @@
+"""Flask blueprint for /condition command, which returns the game rules for status conditions"""
+
 from flask import abort, Blueprint, jsonify, request
 from dndtools import is_request_valid
 
@@ -6,7 +8,13 @@ bp = Blueprint('condition', __name__)
 
 @bp.route('/condition', methods=['POST'])
 def condition():
-    # Source: D&D SRD5 Appendix PH-A
+    """Provides the requested condition's in-game details
+
+    Returns:
+        dict containing json response containing information formatted for Slack
+    """
+
+    # Source: D&D SRD5 Appendix PH-A, subject to Open Gaming License
     conditions = {
         "blinded": "* A blinded creature can't see and automatically fails any ability check that requires "
                    "sight.\n"
