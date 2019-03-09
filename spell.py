@@ -63,7 +63,7 @@ class Spell:
             # Casting time
             self.cast_time = " ".join([str(json_dict['time'][0]['number']), json_dict['time'][0]['unit']])
             if 'condition' in json_dict['time'][0].keys():
-                self.cast_time += " " + json_dict['time'][0]['condition']
+                self.cast_time += " " + json_dict['time'][0]['condition']  # see, e.g., Hellish Rebuke
 
             # Range is encoded differently depending on whether it's touch/self or ranged
             if json_dict['range'].get('distance', None):
@@ -248,6 +248,8 @@ class Spell:
     def from_sqlite(cls, db_result):
         """Parses data from a sqlite database, creates a Spell object using that data, and returns it
 
+        Args:
+            db_result: dict containing spell data
         Returns:
             A spell
         """
@@ -269,6 +271,8 @@ class Spell:
     def from_dynamodb(cls, db_result):
         """Parses data from a DynamoDB database, creates a Spell object using that data, and returns it
 
+        Args:
+            db_result: dict containing spell data
         Returns:
             A spell
         """
