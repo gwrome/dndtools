@@ -83,3 +83,11 @@ def test_cantrip(client):
                                               team_id='test-team-id',
                                               token='test-token',
                                               user_id='asdf')).get_json()['text']
+def test_ritual(client):
+    assert "ritual" in client.post('/spellbook',
+                                    data=dict(text="Identify",
+                                              team_id='test-team-id',
+                                              token='test-token',
+                                              user_id='asdf')).get_json()['text']
+
+
