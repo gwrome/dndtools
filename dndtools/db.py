@@ -4,6 +4,7 @@ import json
 # import sqlite3
 import time
 
+from botocore.exceptions import ClientError
 import click
 from flask import current_app, g
 from flask.cli import with_appcontext
@@ -46,7 +47,15 @@ def init_db():
     """Set up empty tables"""
     with current_app.app_context():
         db = get_db()
-        db.destroy_all(wait=True)
+        try:
+            click.echo('Attempting to delete tables')
+            db.destroy_all(wait=True)
+        except ClientError as e:
+            if e.response['Error']['Code'] == 'ResourceNotFoundException':
+                click.echo('No tables to delete')
+            else:
+                click.echo('Unexpected error: ' + e)
+
         db.create_all(wait=True)
 
     # TODO: Remove code for sqlite or set up app to allow for either database
