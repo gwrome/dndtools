@@ -143,6 +143,7 @@ class Spell:
                 re.compile('(\{@scaledice [+\-\|\d\w\s]*(\d+d\d+)\})'),  # {@scaledice 3d12|3-9|1d12} => 1d12
                 re.compile('(\{@creature ([\-\w\s]*)\})'),  # {@creature dire wolf} => dire wolf
                 re.compile('(\{@filter ([/\d\w\s]+)\|.+?\})'),  # {@filter challenge rating 6 or lower...}
+                re.compile('(\{@spell ([\w\s]+)\})'),  # {@spell fireball} => fireball
             ]
             for r in replacements:
                 m = r.findall(clean_description)
