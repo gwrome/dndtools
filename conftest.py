@@ -1,5 +1,5 @@
 import os
-
+import json
 import pytest
 
 from dndtools import create_app
@@ -31,3 +31,10 @@ def client(app):
 def runner(app):
     """A test command-line runner for the app."""
     return app.test_cli_runner()
+
+
+@pytest.fixture
+def raw_spells(app):
+    with open(os.path.join(app.root_path, '../tests', 'raw_spells.json')) as f:
+        raw_spells = json.load(f)
+    return raw_spells
