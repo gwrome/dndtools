@@ -10,7 +10,7 @@ This app supports a Slack app to provide custom [slash commands](https://api.sla
 To start, create a [Slack app](https://api.slack.com/slack-apps). Make sure your [AWS Credentials](https://aws.amazon.com/blogs/security/a-new-and-standardized-way-to-manage-credentials-in-the-aws-sdks/) file is up to date or create it if you don't have one.
 
 ### Download the repo and install requirements
-I recommend you use virtualenv to create a virtual environment for running this code and downloading all its dependencies. More info on virtualenv [here](https://packaging.python.org/guides/installing-using-pip-and-virtualenv/) if you're not familiar.
+I recommend you use venv or another virtual environment manager to create a virtual environment for running this code and downloading all its dependencies. More info on venv [here](https://docs.python.org/3/library/venv.html) if you're not familiar.
 
 ```sh
 git clone https://github.com/gwrome/dndtools.git
